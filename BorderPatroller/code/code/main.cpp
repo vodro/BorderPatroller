@@ -16,6 +16,8 @@
 #include <string.h>
 #include "avr/interrupt.h"
 #include <stdlib.h>
+
+#include "our_libraries/util.h"
 //using namespace  std;
 class SonarUnit{
 	int distance;
@@ -38,6 +40,9 @@ ISR(TIMER1_OVF_vect){
 	
 	n++;
 }
+
+
+
 int main(void)
 {
 	
@@ -50,13 +55,15 @@ int main(void)
 	
 	
     lcd_init(LCD_ON_CURSOR);
+	lcd_clrscr();
 	
+	
+	// motor rotate
 	DDRA |= (0b11110000);
 	
-	//signed char i = 0xFF;
-	lcd_clrscr();
-	signed char i = 0xFF;
-	SonarUnit son;
+	// Trigger for Sonar1
+	DDRA |= (1 << SN1_TRGR_1);
+	
 	unsigned char rotate = 0;
 	unsigned int counter = 0;
     while (1) 
@@ -69,19 +76,13 @@ int main(void)
 		
 		n=0;
 		TCNT1=0;
-		
+		PORTA = setBit(PORTA, SN1_TRGR_1);
+		_delay_us(12);
+		PORTA = unsetBit(PORTA, SN1_TRGR_1);
 		sei();
-		
-		for (i=0;i<100;i++)
-		{ 
-			for (j=0;j<counter;j++)
-			{
-				//;
-			}
-		}
 		elapsed_time=n*65535+(uint32_t)TCNT1;
 		cli();
-		
+		_delay_ms(25);
 		
 		
 		
@@ -95,6 +96,7 @@ int main(void)
 		PORTA |= (1 << (rotate + 4 ) );
 		rotate++;
 		rotate= rotate%4;
+		
 		counter++;
 		
 		_delay_ms(2000);
