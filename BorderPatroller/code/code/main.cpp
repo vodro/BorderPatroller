@@ -28,7 +28,7 @@ class SonarUnit{
 		}
 		
 		char * foo(){
-			return "I am from Sonar unit";
+			return "I am sigat";
 		}
 	};
 
