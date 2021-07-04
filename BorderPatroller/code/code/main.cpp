@@ -14,6 +14,7 @@
 
 #include "external_libraries/lcd/lcd.h"
 #include <string.h>
+#include "avr/interrupt.h"
 #include <stdlib.h>
 //using namespace  std;
 class SonarUnit{
@@ -28,37 +29,73 @@ class SonarUnit{
 		}
 		
 		char * foo(){
-			return "I Sonar ";
+			return "I am sifat";
 		}
 	};
 
+volatile uint32_t n;
+ISR(TIMER1_OVF_vect){
+	
+	n++;
+}
 int main(void)
 {
+	
+	int i,j;
+	uint32_t elapsed_time;
+	
+	TCCR1A=0b00000000;
+	TCCR1B=0b00000001;
+	TIMSK =0b00000100;
+	
+	
     lcd_init(LCD_ON_CURSOR);
 	
 	DDRA |= (0b11110000);
 	
+	//signed char i = 0xFF;
 	lcd_clrscr();
 	signed char i = 0xFF;
 	SonarUnit son;
 	unsigned char rotate = 0;
+	unsigned int counter = 0;
     while (1) 
     {
-		
-		lcd_gotoxy(0,0);
 		char s[10];
-		itoa(i, s, 10);
-		//s[9]=0;
+		lcd_gotoxy(0,0);
+		itoa(counter, s, 10);
+		lcd_puts(s); lcd_putc(':');
+		
+		
+		n=0;
+		TCNT1=0;
+		
+		sei();
+		
+		for (i=0;i<100;i++)
+		{ 
+			for (j=0;j<counter;j++)
+			{
+				//;
+			}
+		}
+		elapsed_time=n*65535+(uint32_t)TCNT1;
+		cli();
+		
+		
+		
+		
+	   // lcd_gotoxy(1,0);			
+		itoa(elapsed_time, s, 10);
 		lcd_puts(s);
 		i--;
-		lcd_gotoxy(0, 1);
-		lcd_puts(son.foo());
-		lcd_puts(" Sifat");
+		
 		
 		PORTA = PORTA & (0b00001111);
 		PORTA |= (1 << (rotate + 4 ) );
 		rotate++;
 		rotate= rotate%4;
+		counter++;
 		
 		_delay_ms(2000);
     }
