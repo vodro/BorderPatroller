@@ -4,6 +4,7 @@
  * Created: 7/4/2021 10:00:55 AM
  *  Author: vdrko
  */ 
+#include <math.h>
 
 
 #ifndef UTIL_H_
@@ -12,7 +13,7 @@
 Here goes our own functions
 */
 
-#define SN1_TRGR_1 PORTA2
+#define SN1_TRGR_1 PORTB1
 
 /**
 Sets i th bit in number n
@@ -34,10 +35,10 @@ class DistanceCalculator
 	times are in  micro second
 	distances are in mili meter
 	*/
-	float temperature;
-	float velocity;
-	float maximumAllowedDistance;
-	float maximumAllowedTime; 
+	double temperature;
+	double velocity;
+	uint32_t maximumAllowedDistance;
+	uint32_t maximumAllowedTime; 
 	public:
 	DistanceCalculator(float temp)
 	{
@@ -48,28 +49,28 @@ class DistanceCalculator
 	}
 
 
-	float calculateVelocity()
+	double calculateVelocity()
 	{
 
-		return velocity = 0.3313 * sqrt(1 + temperature/273.15);
+		return velocity = 331.3 * sqrt(1 + temperature/273.15) / 1000.0;
 
 	}
 
-	float calculateDistance(float time_us)
+	int calculateDistance(int time_us)
 	{
 		
 
-		return (getVelocity()*time_us)/2.0;
+		return (int)(getVelocity()*time_us) >> 1;
 
 	}
-	float calculateMaximumWaitTime(){
-		return  maximumAllowedTime =  2 * maximumAllowedDistance / velocity ;
+	int calculateMaximumWaitTime(){
+		return  maximumAllowedTime =  2 * maximumAllowedDistance / getVelocity() ;
 	}	
-	float getVelocity(){
+	double getVelocity(){
 		return velocity;
 	}
 	
-	float getMaximumWaitTime(){
+	int getMaximumWaitTime(){
 		return maximumAllowedTime;
 	}
 	
@@ -79,9 +80,18 @@ class DistanceCalculator
 		this->maximumAllowedTime = calculateMaximumWaitTime();
 		
 	}
-
+	
+	
 
 };
+
+extern  char temp_string[16];
+char *itoa(uint32_t n){
+	//char s[10];
+	temp_string[0] = 0;
+	itoa(n, temp_string, 10);
+	return temp_string;
+}
 
 
 #endif /* UTIL_H_ */

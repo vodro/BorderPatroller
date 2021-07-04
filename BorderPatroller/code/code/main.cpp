@@ -14,11 +14,15 @@
 
 #include "external_libraries/lcd/lcd.h"
 #include <string.h>
-#include "avr/interrupt.h"
+#include <avr/interrupt.h>
 #include <stdlib.h>
 
 #include "our_libraries/util.h"
 //using namespace  std;
+
+
+// Distance Calculator Boss
+DistanceCalculator distanceCalculator(29); // current temperature 29 degree celcius
 class SonarUnit{
 	int distance;
 	public:
@@ -35,10 +39,28 @@ class SonarUnit{
 		}
 	};
 
+
 volatile uint32_t n;
+volatile uint32_t timer_elapsed_time;
+char temp_string[16];
 ISR(TIMER1_OVF_vect){
 	
 	n++;
+}
+
+ISR(INT0_vect){
+	timer_elapsed_time=n*65535+(uint32_t)TCNT1;
+	/*
+	lcd_gotoxy(0,0);
+	lcd_puts(itoa(timer_elapsed_time));
+	lcd_puts(" us INT0!");
+	lcd_gotoxy(0, 1);
+	
+	lcd_puts(itoa(distanceCalculator.calculateDistance(timer_elapsed_time) / 10));
+	lcd_puts(" cm");
+	_delay_ms(1000);
+	lcd_clrscr();
+	*/
 }
 
 
@@ -62,36 +84,48 @@ int main(void)
 	DDRA |= (0b11110000);
 	
 	// Trigger for Sonar1
-	DDRA |= (1 << SN1_TRGR_1);
+	DDRB |= (1 << SN1_TRGR_1);
+	
+	
 	
 	unsigned char rotate = 0;
 	unsigned int counter = 0;
+	MCUCR = MCUCR | (0b00000010); // falling edge
+	GICR = GICR | (1 << INT0);
     while (1) 
-    {
-		char s[10];
-		lcd_gotoxy(0,0);
-		itoa(counter, s, 10);
-		lcd_puts(s); lcd_putc(':');
-		
-		
+    {	
 		n=0;
 		TCNT1=0;
-		PORTA = setBit(PORTA, SN1_TRGR_1);
-		_delay_us(12);
-		PORTA = unsetBit(PORTA, SN1_TRGR_1);
+		//lcd_puts(itoa(n));
+		PORTB = setBit(PORTB, SN1_TRGR_1);
 		sei();
-		elapsed_time=n*65535+(uint32_t)TCNT1;
+		_delay_us(12); // Sonar requires 12ms pulse
+		
+		PORTB = unsetBit(PORTB, SN1_TRGR_1);
+		
+		
+		uint32_t wait_time = distanceCalculator.getMaximumWaitTime();
+		_delay_us(25000); // How long we should wait before all sonar values are read
+		
 		cli();
-		_delay_ms(25);
 		
+		lcd_clrscr();
+		lcd_gotoxy(0, 0);
+		lcd_puts(itoa(counter));
+		lcd_putc(':');
+	   // lcd_gotoxy(1,0);	
+		 int distance = distanceCalculator.calculateDistance(timer_elapsed_time) / 10;
+		 lcd_puts(itoa(distance));
+		//lcd_puts(itoa(0.0175 * (int)timer_elapsed_time));		
+		//lcd_puts( itoa( distanceCalculator.calculateDistance(timer_elapsed_time) / 10 ) );
 		
+		lcd_puts(" cm");
 		
-	   // lcd_gotoxy(1,0);			
-		itoa(elapsed_time, s, 10);
-		lcd_puts(s);
-		i--;
+		lcd_gotoxy(3, 1);
+		lcd_puts(itoa(timer_elapsed_time));
+		lcd_puts(" us");
 		
-		
+		// motor roation
 		PORTA = PORTA & (0b00001111);
 		PORTA |= (1 << (rotate + 4 ) );
 		rotate++;
