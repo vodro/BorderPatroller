@@ -28,16 +28,20 @@ class SonarUnit{
 		}
 		
 		char * foo(){
-			return "I am from Sonar unit";
+			return "I Sonar ";
 		}
 	};
 
 int main(void)
 {
     lcd_init(LCD_ON_CURSOR);
-	signed char i = 0xFF;
+	
+	DDRA |= (0b11110000);
+	
 	lcd_clrscr();
+	signed char i = 0xFF;
 	SonarUnit son;
+	unsigned char rotate = 0;
     while (1) 
     {
 		
@@ -49,6 +53,13 @@ int main(void)
 		i--;
 		lcd_gotoxy(0, 1);
 		lcd_puts(son.foo());
+		lcd_puts(" Sifat");
+		
+		PORTA = PORTA & (0b00001111);
+		PORTA |= (1 << (rotate + 4 ) );
+		rotate++;
+		rotate= rotate%4;
+		
 		_delay_ms(2000);
     }
 }
