@@ -22,26 +22,14 @@
 
 
 // Distance Calculator Boss
-DistanceCalculator distanceCalculator(29); // current temperature 29 degree celcius
-class SonarUnit{
-	int distance;
-	public:
-	
-		SonarUnit(){
-			distance = 10000;
-		}
-		~SonarUnit(){
-			
-		}
-		
-		char * foo(){
-			return "I am sifat";
-		}
-	};
+DistanceCalculator distanceCalculator(20); // current temperature 29 degree celcius
+
 
 
 volatile uint32_t n;
-volatile uint32_t timer_elapsed_time;
+volatile uint32_t timer0_elapsed_time;
+volatile uint32_t timer1_elapsed_time;
+volatile uint32_t timer2_elapsed_time;
 char temp_string[16];
 ISR(TIMER1_OVF_vect){
 	
@@ -49,7 +37,7 @@ ISR(TIMER1_OVF_vect){
 }
 
 ISR(INT0_vect){
-	timer_elapsed_time=n*65535+(uint32_t)TCNT1;
+	timer0_elapsed_time=(uint32_t)TCNT1 + (n << 16);
 	/*
 	lcd_gotoxy(0,0);
 	lcd_puts(itoa(timer_elapsed_time));
@@ -63,6 +51,14 @@ ISR(INT0_vect){
 	*/
 }
 
+
+ISR(INT1_vect){
+	timer1_elapsed_time=(uint32_t)TCNT1 + (n << 16);	
+}
+
+ISR(INT2_vect){
+	timer2_elapsed_time = (uint32_t)TCNT1 + (n << 16);
+}
 
 
 int main(void)
@@ -90,18 +86,30 @@ int main(void)
 	
 	unsigned char rotate = 0;
 	unsigned int counter = 0;
-	MCUCR = MCUCR | (0b00000010); // falling edge
+	
+	MCUCR = MCUCR | (0b00000010); // falling edge INT0
 	GICR = GICR | (1 << INT0);
+	MCUCR = MCUCR | (0b00001000); // falling edge INT1
+	GICR = GICR | (1 << INT1);
+	MCUCSR = MCUCSR & ~(1 << 7);
+	GICR = GICR | (1 << INT2);
+	//MCUCR = MCUCR | (0b00001010);
+	//GICR = GICR | ( 1 << INT0 | 1 << INT1);
+	
     while (1) 
     {	
-		n=0;
-		TCNT1=0;
+		
 		//lcd_puts(itoa(n));
 		PORTB = setBit(PORTB, SN1_TRGR_1);
-		sei();
-		_delay_us(12); // Sonar requires 12ms pulse
 		
+		
+		n=0;
+		TCNT1=0;
+		sei();
+		_delay_us(12); // Sonar requires 10ms pulse
 		PORTB = unsetBit(PORTB, SN1_TRGR_1);
+		
+		
 		
 		
 		uint32_t wait_time = distanceCalculator.getMaximumWaitTime();
@@ -113,16 +121,38 @@ int main(void)
 		lcd_gotoxy(0, 0);
 		lcd_puts(itoa(counter));
 		lcd_putc(':');
-	   // lcd_gotoxy(1,0);	
-		 int distance = distanceCalculator.calculateDistance(timer_elapsed_time) / 10;
-		 lcd_puts(itoa(distance));
-		//lcd_puts(itoa(0.0175 * (int)timer_elapsed_time));		
-		//lcd_puts( itoa( distanceCalculator.calculateDistance(timer_elapsed_time) / 10 ) );
-		
+		lcd_puts("0>");
+		;
+		lcd_puts(itoa(distanceCalculator.calculateDistance(timer0_elapsed_time) / 10));
 		lcd_puts(" cm");
 		
-		lcd_gotoxy(3, 1);
-		lcd_puts(itoa(timer_elapsed_time));
+		
+		lcd_puts(itoa(timer0_elapsed_time));
+		lcd_puts(" us");
+		
+		
+		lcd_gotoxy(0, 1);
+		lcd_puts(itoa(counter));
+		lcd_putc(':');
+		lcd_puts("1>");
+		lcd_puts(itoa(distanceCalculator.calculateDistance(timer1_elapsed_time) / 10));
+		lcd_puts(" cm");
+		
+		
+		lcd_puts(itoa(timer1_elapsed_time));
+		lcd_puts(" us");
+		
+		_delay_ms(1000);
+		
+		lcd_clrscr();
+		lcd_gotoxy(0, 0);
+		lcd_puts(itoa(counter));
+		lcd_putc(':');
+		lcd_puts("2>");
+		;
+		lcd_puts(itoa(distanceCalculator.calculateDistance(timer2_elapsed_time) / 10));
+		lcd_puts(" cm");
+		lcd_puts(itoa(timer2_elapsed_time));
 		lcd_puts(" us");
 		
 		// motor roation
