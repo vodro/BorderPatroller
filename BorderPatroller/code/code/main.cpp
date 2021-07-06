@@ -103,14 +103,14 @@ int main(void)
 		PORTB = setBit(PORTB, SN1_TRGR_1);
 		
 		
+		
+		_delay_us(10); // Sonar requires 10ms pulse
+		PORTB = unsetBit(PORTB, SN1_TRGR_1);
+		_delay_us(200); // 8 40khz signal
+		
+		sei();
 		n=0;
 		TCNT1=0;
-		sei();
-		_delay_us(12); // Sonar requires 10ms pulse
-		PORTB = unsetBit(PORTB, SN1_TRGR_1);
-		
-		
-		
 		
 		uint32_t wait_time = distanceCalculator.getMaximumWaitTime();
 		_delay_us(25000); // How long we should wait before all sonar values are read
