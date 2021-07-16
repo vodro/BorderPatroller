@@ -9,7 +9,11 @@
 #ifndef F_CPU
 	#define F_CPU 1000000UL
 #endif
-
+#ifndef  WARNINGS
+    #define  RED 1
+	#define  YELLOW 2
+	#define  GREEN 3
+#endif
 #include <util/delay.h>
 
 #include "external_libraries/lcd/lcd.h"
@@ -64,8 +68,6 @@ ISR(INT2_vect){
 int main(void)
 {
 	
-	int i,j;
-	uint32_t elapsed_time;
 	
 	TCCR1A=0b00000000;
 	TCCR1B=0b00000001;
@@ -77,7 +79,6 @@ int main(void)
 	
 	
 	// motor rotate
-	DDRA |= (0b11110000);
 	
 	// Trigger for Sonar1
 	DDRB |= (1 << SN1_TRGR_1);
@@ -96,6 +97,23 @@ int main(void)
 	//MCUCR = MCUCR | (0b00001010);
 	//GICR = GICR | ( 1 << INT0 | 1 << INT1);
 	
+	
+	/* motor  testing */
+	DDRA |= (0b11110000);
+	DDRA = DDRA | (0xF0);
+	MotorUnit motorUnit;
+	int motorCounter = 1;
+	while(1){
+		motorUnit.rotateAntiClockWise(motorCounter * 360);
+		//motorCounter++;
+		_delay_ms(1000);
+		motorUnit.rotateClockWise(motorCounter * 360);
+		_delay_ms(1000);
+		
+		
+	}
+	
+	int sonar0_distance,sonar1_distance,sonar2_distance=0;
     while (1) 
     {	
 		
@@ -112,7 +130,7 @@ int main(void)
 		n=0;
 		TCNT1=0;
 		
-		uint32_t wait_time = distanceCalculator.getMaximumWaitTime();
+		//uint32_t wait_time = distanceCalculator.getMaximumWaitTime();
 		_delay_us(25000); // How long we should wait before all sonar values are read
 		
 		cli();
@@ -123,7 +141,8 @@ int main(void)
 		lcd_putc(':');
 		lcd_puts("0>");
 		;
-		lcd_puts(itoa(distanceCalculator.calculateDistance(timer0_elapsed_time) / 10));
+		sonar0_distance=distanceCalculator.calculateDistance(timer0_elapsed_time) / 10;
+		lcd_puts(itoa(sonar0_distance));
 		lcd_puts(" cm");
 		
 		
@@ -135,7 +154,8 @@ int main(void)
 		lcd_puts(itoa(counter));
 		lcd_putc(':');
 		lcd_puts("1>");
-		lcd_puts(itoa(distanceCalculator.calculateDistance(timer1_elapsed_time) / 10));
+        sonar1_distance=distanceCalculator.calculateDistance(timer1_elapsed_time) / 10;
+        lcd_puts(itoa(sonar1_distance));
 		lcd_puts(" cm");
 		
 		
@@ -150,10 +170,24 @@ int main(void)
 		lcd_putc(':');
 		lcd_puts("2>");
 		;
-		lcd_puts(itoa(distanceCalculator.calculateDistance(timer2_elapsed_time) / 10));
+		sonar2_distance=distanceCalculator.calculateDistance(timer2_elapsed_time) / 10;
+		lcd_puts(itoa(sonar2_distance));
 		lcd_puts(" cm");
 		lcd_puts(itoa(timer2_elapsed_time));
 		lcd_puts(" us");
+		
+		// led configuration
+		DDRD|=0xFF;
+		int sn0_warn=getSignal(sonar0_distance);
+		int sn1_warn=getSignal(sonar1_distance);
+		int sn2_warn=getSignal(sonar2_distance);
+
+		if(sn0_warn==RED||sn1_warn==RED||sn2_warn==RED)
+		 PORTD=0b11000000;
+		 else if(sn0_warn==YELLOW||sn1_warn==YELLOW||sn2_warn==YELLOW)
+		 PORTD=0b00100000;
+		 else PORTD=0b00010000;
+		
 		
 		// motor roation
 		PORTA = PORTA & (0b00001111);
