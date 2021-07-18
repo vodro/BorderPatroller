@@ -61,6 +61,21 @@ ISR(INT2_vect){
 }
 
 
+void test(){
+	MotorUnit motorUnit;
+	double motorCounter;
+	
+	while(1){
+		motorUnit.revolveAntiClockWise(1);
+		_delay_ms(500);
+		motorUnit.revolveClockwise(.5);
+		_delay_ms(500);
+		
+		
+	}
+	
+}
+
 int main(void)
 {
 	
@@ -94,20 +109,12 @@ int main(void)
 	//GICR = GICR | ( 1 << INT0 | 1 << INT1);
 	
 	
-	/* motor  testing */
-	DDRA |= (0b11110000);
+	/* motor */
+	//DDRA |= (0b11110000);
 	DDRA = DDRA | (0xF0);
-	MotorUnit motorUnit;
-	int motorCounter = 1;
-	while(1){
-		motorUnit.rotateAntiClockWise(motorCounter * 360);
-		//motorCounter++;
-		_delay_ms(1000);
-		motorUnit.rotateClockWise(motorCounter * 360);
-		_delay_ms(1000);
-		
-		
-	}
+	
+	//test();
+	
     while (1) 
     {	
 		
