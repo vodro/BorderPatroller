@@ -103,15 +103,15 @@ int main(void)
 	DDRA = DDRA | (0xF0);
 	MotorUnit motorUnit;
 	int motorCounter = 1;
-	while(1){
+	//while(1){
 		motorUnit.rotateAntiClockWise(motorCounter * 360);
 		//motorCounter++;
-		_delay_ms(1000);
+		_delay_ms(5000);
 		motorUnit.rotateClockWise(motorCounter * 360);
 		_delay_ms(1000);
 		
 		
-	}
+	//}
 	
 	int sonar0_distance,sonar1_distance,sonar2_distance=0;
     while (1) 
