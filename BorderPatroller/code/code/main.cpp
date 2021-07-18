@@ -23,7 +23,8 @@
 
 // Distance Calculator Boss
 DistanceCalculator distanceCalculator(20); // current temperature 29 degree celcius
-
+LightUnit redLed1,redLed2,yellowLed,greenLed;
+BuzzerUnit buzzer0,buzzer1;
 
 
 volatile uint32_t n;
@@ -78,6 +79,23 @@ void test(){
 
 int main(void)
 {
+	redLed1.setDangerRange(0,RED);
+	redLed1.setPinPosition(PORTLTR1);
+	
+	redLed2.setDangerRange(0,RED);
+	redLed2.setPinPosition(PORTLTR2);
+	
+	yellowLed.setDangerRange(RED+1,YELLOW);
+	yellowLed.setPinPosition(PORTLTY);
+	
+	greenLed.setDangerRange(YELLOW+1,GREEN);
+	greenLed.setPinPosition(PORTLTG);
+	
+	buzzer0.setDangerRange(0,RED);
+	buzzer0.setPinPosition(PORTDBZ0);
+	
+	buzzer1.setDangerRange(RED+1,YELLOW);
+	buzzer1.setPinPosition(PORTDBZ1);
 	
 	
 	TCCR1A=0b00000000;
@@ -108,6 +126,8 @@ int main(void)
 	//MCUCR = MCUCR | (0b00001010);
 	//GICR = GICR | ( 1 << INT0 | 1 << INT1);
 	
+
+	
 	
 	/* motor */
 	//DDRA |= (0b11110000);
@@ -115,6 +135,7 @@ int main(void)
 	
 	//test();
 	
+	int sonar0_distance,sonar1_distance,sonar2_distance=0;
     while (1) 
     {	
 		
@@ -142,7 +163,8 @@ int main(void)
 		lcd_putc(':');
 		lcd_puts("0>");
 		;
-		lcd_puts(itoa(distanceCalculator.calculateDistance(timer0_elapsed_time) / 10));
+		sonar0_distance=distanceCalculator.calculateDistance(timer0_elapsed_time) / 10;
+		lcd_puts(itoa(sonar0_distance));
 		lcd_puts(" cm");
 		
 		
@@ -154,7 +176,8 @@ int main(void)
 		lcd_puts(itoa(counter));
 		lcd_putc(':');
 		lcd_puts("1>");
-		lcd_puts(itoa(distanceCalculator.calculateDistance(timer1_elapsed_time) / 10));
+        sonar1_distance=distanceCalculator.calculateDistance(timer1_elapsed_time) / 10;
+        lcd_puts(itoa(sonar1_distance));
 		lcd_puts(" cm");
 		
 		
@@ -168,11 +191,50 @@ int main(void)
 		lcd_puts(itoa(counter));
 		lcd_putc(':');
 		lcd_puts("2>");
-		;
-		lcd_puts(itoa(distanceCalculator.calculateDistance(timer2_elapsed_time) / 10));
+		sonar2_distance=distanceCalculator.calculateDistance(timer2_elapsed_time) / 10;
+		lcd_puts(itoa(sonar2_distance));
 		lcd_puts(" cm");
 		lcd_puts(itoa(timer2_elapsed_time));
 		lcd_puts(" us");
+		
+		// led & buzzer configuration
+		DDRD|=0b11110011;
+		
+		// LED
+		if(redLed1.isDanger(sonar0_distance)||redLed1.isDanger(sonar1_distance)||redLed1.isDanger(sonar2_distance))
+		{
+			 redLed1.switchOn();
+			 redLed2.switchOn();
+		} else {
+			redLed1.switchOff();
+			redLed2.switchOff();
+		}
+		
+		 
+		 
+		if(yellowLed.isDanger(sonar0_distance)||yellowLed.isDanger(sonar1_distance)||yellowLed.isDanger(sonar2_distance))
+		yellowLed.switchOn(); else yellowLed.switchOff();
+		
+		if(greenLed.isDanger(sonar0_distance)||greenLed.isDanger(sonar1_distance)||greenLed.isDanger(sonar2_distance))
+		greenLed.switchOn(); else greenLed.switchOff();
+		
+		// BUZZER 
+		if(buzzer0.isDanger(sonar0_distance)||buzzer0.isDanger(sonar1_distance)||buzzer0.isDanger(sonar2_distance))
+		{
+			buzzer0.switchOn();
+			buzzer1.switchOn();
+			} 
+			else if(buzzer1.isDanger(sonar0_distance)||buzzer1.isDanger(sonar1_distance)||buzzer1.isDanger(sonar2_distance))
+			{
+				buzzer0.switchOff();
+				buzzer1.switchOn();
+			} 
+			else {
+				buzzer0.switchOff();
+				buzzer1.switchOff();
+			}
+		
+		/*
 		
 		// motor roation
 		PORTA = PORTA & (0b00001111);
@@ -182,7 +244,10 @@ int main(void)
 		
 		counter++;
 		
-		_delay_ms(2000);
+		*/
+		
+		//_delay_ms(2000);
+		
     }
 }
 
