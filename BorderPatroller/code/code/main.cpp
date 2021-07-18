@@ -9,11 +9,7 @@
 #ifndef F_CPU
 	#define F_CPU 1000000UL
 #endif
-#ifndef  WARNINGS
-    #define  RED 1
-	#define  YELLOW 2
-	#define  GREEN 3
-#endif
+
 #include <util/delay.h>
 
 #include "external_libraries/lcd/lcd.h"
@@ -27,7 +23,8 @@
 
 // Distance Calculator Boss
 DistanceCalculator distanceCalculator(20); // current temperature 29 degree celcius
-
+LightUnit redLed1,redLed2,yellowLed,greenLed;
+BuzzerUnit buzzer0,buzzer1;
 
 
 volatile uint32_t n;
@@ -67,6 +64,23 @@ ISR(INT2_vect){
 
 int main(void)
 {
+	redLed1.setDangerLength(RED);
+	redLed1.setPinPosition(PORTLTR1);
+	
+	redLed2.setDangerLength(RED);
+	redLed2.setPinPosition(PORTLTR2);
+	
+	yellowLed.setDangerLength(YELLOW);
+	yellowLed.setPinPosition(PORTLTY);
+	
+	greenLed.setDangerLength(GREEN);
+	greenLed.setPinPosition(PORTLTG);
+	
+	buzzer0.setDangerLength(RED);
+	buzzer0.setPinPosition(PORTDBZ0);
+	
+	buzzer1.setDangerLength(YELLOW);
+	buzzer1.setPinPosition(PORTDBZ1);
 	
 	
 	TCCR1A=0b00000000;
@@ -97,8 +111,11 @@ int main(void)
 	//MCUCR = MCUCR | (0b00001010);
 	//GICR = GICR | ( 1 << INT0 | 1 << INT1);
 	
+
+	
 	
 	/* motor  testing */
+	/*
 	DDRA |= (0b11110000);
 	DDRA = DDRA | (0xF0);
 	MotorUnit motorUnit;
@@ -109,10 +126,9 @@ int main(void)
 		_delay_ms(5000);
 		motorUnit.rotateClockWise(motorCounter * 360);
 		_delay_ms(1000);
-		
-		
-	//}
 	
+	//}
+    */
 	int sonar0_distance,sonar1_distance,sonar2_distance=0;
     while (1) 
     {	
@@ -169,24 +185,41 @@ int main(void)
 		lcd_puts(itoa(counter));
 		lcd_putc(':');
 		lcd_puts("2>");
-		;
 		sonar2_distance=distanceCalculator.calculateDistance(timer2_elapsed_time) / 10;
 		lcd_puts(itoa(sonar2_distance));
 		lcd_puts(" cm");
 		lcd_puts(itoa(timer2_elapsed_time));
 		lcd_puts(" us");
 		
-		// led configuration
-		DDRD|=0xFF;
-		int sn0_warn=getSignal(sonar0_distance);
-		int sn1_warn=getSignal(sonar1_distance);
-		int sn2_warn=getSignal(sonar2_distance);
-
-		if(sn0_warn==RED||sn1_warn==RED||sn2_warn==RED)
-		 PORTD=0b11000000;
-		 else if(sn0_warn==YELLOW||sn1_warn==YELLOW||sn2_warn==YELLOW)
-		 PORTD=0b00100000;
-		 else PORTD=0b00010000;
+		// led & buzzer configuration
+		DDRD|=0x11110011;
+		
+		// LED
+		if(redLed1.isDanger(sonar0_distance)||redLed1.isDanger(sonar1_distance)||redLed1.isDanger(sonar2_distance))
+		 redLed1.switchOn(); else  redLed1.switchOff();
+		 
+		if(yellowLed.isDanger(sonar0_distance)||yellowLed.isDanger(sonar1_distance)||yellowLed.isDanger(sonar2_distance))
+		yellowLed.switchOn(); else yellowLed.switchOff();
+		
+		if(greenLed.isDanger(sonar0_distance)||greenLed.isDanger(sonar1_distance)||greenLed.isDanger(sonar2_distance))
+		greenLed.switchOn(); else greenLed.switchOff();
+		
+		// BUZZER 
+		if(buzzer0.isDanger(sonar0_distance)||buzzer0.isDanger(sonar1_distance)||buzzer0.isDanger(sonar2_distance))
+		{
+			buzzer0.switchOn();
+			buzzer1.switchOn();
+			} 
+			else if(buzzer1.isDanger(sonar0_distance)||buzzer1.isDanger(sonar1_distance)||buzzer1.isDanger(sonar2_distance))
+			{
+				buzzer0.switchOff();
+				buzzer1.switchOn();
+			} 
+			else {
+				buzzer0.switchOff();
+				buzzer1.switchOff();
+			}
+		
 		
 		
 		// motor roation

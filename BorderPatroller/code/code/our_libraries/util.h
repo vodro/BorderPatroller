@@ -24,6 +24,23 @@ Here goes our own functions
 #define PORTM2 PORTA6
 #define PORTM3 PORTA7
 
+// FOR LED
+#define PORTLT PORTD 
+#define PORTLTR1 PORTD7
+#define PORTLTR2 PORTD6
+#define PORTLTY PORTD5
+#define PORTLTG PORTD4
+
+#define RED 200
+#define YELLOW 300
+#define GREEN 350
+
+//FOR BUZZER
+#define PORTBZ PORTD
+#define PORTDBZ0 PORTD0
+#define PORTDBZ1 PORTD1
+
+
 /**
 Sets i th bit in number n
 */
@@ -227,14 +244,149 @@ class MotorUnit{
 			 
 		}
 };
-#define  red 1
-#define  yellow 2
-#define  green 3
-int getSignal(int distance){
-	if(distance>=350) return green;
-	else if(distance>=250) return yellow;
-	else return red;
-}
 
+/*MOVING OBJECT DETECTOR CLASS*/
+#define TOLERANCE 15 // may change later
+class Container{
+
+	int *distances;
+	int capacity;
+	int currentPointer;
+	
+
+	public:
+	Container(int capacity){
+		this->capacity=capacity;
+		distances=new int[capacity];
+		currentPointer=-1;
+		for(int i=0;i<capacity;i++) distances[i]=0;
+        
+	}
+
+	void addElement(int newDistance){
+
+		currentPointer++;
+		currentPointer=currentPointer%capacity;
+
+		distances[currentPointer]=newDistance;
+
+	}
+
+	bool isMoving(){
+		
+		if(currentPointer==-1) return false;
+
+		for(int i=1;i<=4;i++)
+		if(!isEqual(currentPointer,currentPointer-i)) return false;
+
+		return true;
+
+	}
+
+
+	bool isEqual(int i,int j){
+
+		if(j<0)
+		j=j+capacity;
+
+		return abs(distances[i]-distances[j])<=TOLERANCE;
+	}
+
+/*
+	void print(){
+
+		for(int i=0;i<capacity;i++) 
+		printf("%d ",distances[i]);
+	
+	}
+	*/
+
+};
+
+
+
+class LightUnit{
+
+	int dangerLength;
+	int pinPosition;
+
+
+	public:
+	
+	void setPinPosition(int pos){
+		pinPosition=pos;
+	}
+	void setDangerLength(int len){
+		dangerLength=len;
+	}
+	int getPinPosition(){
+		return pinPosition;
+	}
+	int setDangerLength(){
+		return dangerLength;
+	}
+	void switchOn(){
+		
+		PORTLT=setBit(PORTLT,pinPosition);
+			
+	}
+	
+	void switchOff(){
+		
+		PORTLT=unsetBit(PORTLT,pinPosition);
+		
+	}
+	
+	
+	bool isDanger(int distance){
+		
+		return distance<=dangerLength;
+		
+	}
+
+
+};
+
+class BuzzerUnit{
+
+	int dangerLength;
+	int pinPosition;
+
+
+	public:
+	
+	void setPinPosition(int pos){
+		pinPosition=pos;
+	}
+	void setDangerLength(int len){
+		dangerLength=len;
+	}
+	int getPinPosition(){
+		return pinPosition;
+	}
+	int setDangerLength(){
+		return dangerLength;
+	}
+	void switchOn(){
+		
+		PORTBZ=setBit(PORTBZ,pinPosition);
+		
+	}
+	
+	void switchOff(){
+		
+		PORTBZ=unsetBit(PORTBZ,pinPosition);
+		
+	}
+	
+	
+	bool isDanger(int distance){
+		
+		return distance<=dangerLength;
+		
+	}
+
+
+};
 
 #endif /* UTIL_H_ */
