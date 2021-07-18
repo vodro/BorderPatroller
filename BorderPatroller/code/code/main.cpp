@@ -64,8 +64,6 @@ ISR(INT2_vect){
 int main(void)
 {
 	
-	int i,j;
-	uint32_t elapsed_time;
 	
 	TCCR1A=0b00000000;
 	TCCR1B=0b00000001;
@@ -77,7 +75,6 @@ int main(void)
 	
 	
 	// motor rotate
-	DDRA |= (0b11110000);
 	
 	// Trigger for Sonar1
 	DDRB |= (1 << SN1_TRGR_1);
@@ -96,6 +93,21 @@ int main(void)
 	//MCUCR = MCUCR | (0b00001010);
 	//GICR = GICR | ( 1 << INT0 | 1 << INT1);
 	
+	
+	/* motor  testing */
+	DDRA |= (0b11110000);
+	DDRA = DDRA | (0xF0);
+	MotorUnit motorUnit;
+	int motorCounter = 1;
+	while(1){
+		motorUnit.rotateAntiClockWise(motorCounter * 360);
+		//motorCounter++;
+		_delay_ms(1000);
+		motorUnit.rotateClockWise(motorCounter * 360);
+		_delay_ms(1000);
+		
+		
+	}
     while (1) 
     {	
 		
@@ -112,7 +124,7 @@ int main(void)
 		n=0;
 		TCNT1=0;
 		
-		uint32_t wait_time = distanceCalculator.getMaximumWaitTime();
+		//uint32_t wait_time = distanceCalculator.getMaximumWaitTime();
 		_delay_us(25000); // How long we should wait before all sonar values are read
 		
 		cli();
