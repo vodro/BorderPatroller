@@ -64,22 +64,22 @@ ISR(INT2_vect){
 
 int main(void)
 {
-	redLed1.setDangerLength(RED);
+	redLed1.setDangerRange(0,RED);
 	redLed1.setPinPosition(PORTLTR1);
 	
-	redLed2.setDangerLength(RED);
+	redLed2.setDangerRange(0,RED);
 	redLed2.setPinPosition(PORTLTR2);
 	
-	yellowLed.setDangerLength(YELLOW);
+	yellowLed.setDangerRange(RED+1,YELLOW);
 	yellowLed.setPinPosition(PORTLTY);
 	
-	greenLed.setDangerLength(GREEN);
+	greenLed.setDangerRange(YELLOW+1,GREEN);
 	greenLed.setPinPosition(PORTLTG);
 	
-	buzzer0.setDangerLength(RED);
+	buzzer0.setDangerRange(0,RED);
 	buzzer0.setPinPosition(PORTDBZ0);
 	
-	buzzer1.setDangerLength(YELLOW);
+	buzzer1.setDangerRange(RED+1,YELLOW);
 	buzzer1.setPinPosition(PORTDBZ1);
 	
 	
@@ -192,11 +192,19 @@ int main(void)
 		lcd_puts(" us");
 		
 		// led & buzzer configuration
-		DDRD|=0x11110011;
+		DDRD|=0b11110011;
 		
 		// LED
 		if(redLed1.isDanger(sonar0_distance)||redLed1.isDanger(sonar1_distance)||redLed1.isDanger(sonar2_distance))
-		 redLed1.switchOn(); else  redLed1.switchOff();
+		{
+			 redLed1.switchOn();
+			 redLed2.switchOn();
+		} else {
+			redLed1.switchOff();
+			redLed2.switchOff();
+		}
+		
+		 
 		 
 		if(yellowLed.isDanger(sonar0_distance)||yellowLed.isDanger(sonar1_distance)||yellowLed.isDanger(sonar2_distance))
 		yellowLed.switchOn(); else yellowLed.switchOff();
@@ -220,7 +228,7 @@ int main(void)
 				buzzer1.switchOff();
 			}
 		
-		
+		/*
 		
 		// motor roation
 		PORTA = PORTA & (0b00001111);
@@ -230,7 +238,10 @@ int main(void)
 		
 		counter++;
 		
-		_delay_ms(2000);
+		*/
+		
+		//_delay_ms(2000);
+		
     }
 }
 

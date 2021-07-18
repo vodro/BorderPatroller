@@ -33,7 +33,7 @@ Here goes our own functions
 
 #define RED 200
 #define YELLOW 300
-#define GREEN 350
+#define GREEN 400
 
 //FOR BUZZER
 #define PORTBZ PORTD
@@ -307,7 +307,8 @@ class Container{
 
 class LightUnit{
 
-	int dangerLength;
+	int dangerStart;
+	int dangerEnd;
 	int pinPosition;
 
 
@@ -316,15 +317,14 @@ class LightUnit{
 	void setPinPosition(int pos){
 		pinPosition=pos;
 	}
-	void setDangerLength(int len){
-		dangerLength=len;
+	void setDangerRange(int start,int end){
+		dangerStart=start;
+		dangerEnd=end;
 	}
 	int getPinPosition(){
 		return pinPosition;
 	}
-	int setDangerLength(){
-		return dangerLength;
-	}
+	
 	void switchOn(){
 		
 		PORTLT=setBit(PORTLT,pinPosition);
@@ -340,7 +340,7 @@ class LightUnit{
 	
 	bool isDanger(int distance){
 		
-		return distance<=dangerLength;
+		return (dangerStart<=distance)&&(distance<=dangerEnd);
 		
 	}
 
@@ -349,7 +349,8 @@ class LightUnit{
 
 class BuzzerUnit{
 
-	int dangerLength;
+	int dangerStart;
+	int dangerEnd;
 	int pinPosition;
 
 
@@ -358,15 +359,14 @@ class BuzzerUnit{
 	void setPinPosition(int pos){
 		pinPosition=pos;
 	}
-	void setDangerLength(int len){
-		dangerLength=len;
+	void setDangerRange(int start,int end){
+		dangerStart=start;
+		dangerEnd=end;
 	}
 	int getPinPosition(){
 		return pinPosition;
 	}
-	int setDangerLength(){
-		return dangerLength;
-	}
+	
 	void switchOn(){
 		
 		PORTBZ=setBit(PORTBZ,pinPosition);
@@ -382,7 +382,7 @@ class BuzzerUnit{
 	
 	bool isDanger(int distance){
 		
-		return distance<=dangerLength;
+		return (dangerStart<=distance)&&(distance<=dangerEnd);
 		
 	}
 
