@@ -14,7 +14,7 @@
 class System{
 	MotorUnit motor;
 	//LightUnit light[4];
-	BuzzerUnit buzzer[2];
+	//BuzzerUnit buzzer[2];
 	SonarUnit sonar[4];
 	public:
 	System(){

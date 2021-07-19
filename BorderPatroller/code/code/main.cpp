@@ -26,7 +26,7 @@
 // Distance Calculator Boss
 DistanceCalculator distanceCalculator(20); // current temperature 29 degree celcius
 LightUnit redLed1(PORTLTR1),redLed2(PORTLTR2),yellowLed(PORTLTY),greenLed(PORTLTG);
-BuzzerUnit buzzer0,buzzer1;
+//BuzzerUnit buzzer0,buzzer1;
 
 
 volatile uint32_t n;
@@ -203,34 +203,10 @@ int main(void)
 		 
 		
 		// BUZZER 
-		if(buzzer0.isDanger(sonar0_distance)||buzzer0.isDanger(sonar1_distance)||buzzer0.isDanger(sonar2_distance))
-		{
-			buzzer0.switchOn();
-			buzzer1.switchOn();
-			} 
-			else if(buzzer1.isDanger(sonar0_distance)||buzzer1.isDanger(sonar1_distance)||buzzer1.isDanger(sonar2_distance))
-			{
-				buzzer0.switchOff();
-				buzzer1.switchOn();
-			} 
-			else {
-				buzzer0.switchOff();
-				buzzer1.switchOff();
-			}
 		
-		/*
 		
-		// motor roation
-		PORTA = PORTA & (0b00001111);
-		PORTA |= (1 << (rotate + 4 ) );
-		rotate++;
-		rotate= rotate%4;
 		
-		counter++;
 		
-		*/
-		
-		//_delay_ms(2000);
 		
     }
 }
