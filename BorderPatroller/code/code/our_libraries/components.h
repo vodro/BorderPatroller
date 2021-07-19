@@ -154,10 +154,16 @@ class SonarUnit{
 	int id;
 	Container *container;
 	int warningStatus;
-	static int idCount;
+	
 	public:
+	static int idCount;
 	SonarUnit(int saved_readings = CONTAINER_DEFAULT_SIZE){
+		init(saved_readings);
+	}
+	
+	void init(int saved_readings = CONTAINER_DEFAULT_SIZE ){
 		this->id = idCount;
+		idCount++;
 		container = (Container *)malloc(sizeof(Container));
 		warningStatus = Green;
 	}

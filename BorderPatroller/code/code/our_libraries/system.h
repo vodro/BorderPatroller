@@ -56,9 +56,11 @@ System::System(){
 	buzzer[RedHigh]->setPinPosition(PORTBZ0);
 	buzzer[RedLow]->setPinPosition(PORTBZ1);
 	
+	SonarUnit temp;
 	sonar = (SonarUnit **) malloc(3 * sizeof(SonarUnit *));
 	for(int i = 0; i < 3; i++){
 		sonar[i] = (SonarUnit *) malloc(sizeof(SonarUnit));
+		sonar[i]->init();
 	}
 	
 }

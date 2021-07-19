@@ -65,6 +65,7 @@ ISR(INT2_vect){
 
 
 void test(){
+	//SonarUnit::idCount = 0;
 	System system;
 		
 }
