@@ -116,27 +116,38 @@ void System::calculateWarnings(){
   resetLightsBuzzers();
 	
 	for(int i=0; i<3;i++){
-		
+		  
+		  lcd_gotoxy(0,i&1);
+		  lcd_puts("Sonar ");
+		  lcd_puts(itoa(i));
 		switch(sonar[i]->getWarningStatus()){
-			
+			 
+			  
 			case RedHigh:
+			    lcd_puts(" : RedHigh");
 				light[RedHigh]->switchOn();
 				light[RedLow]->switchOn();
 				buzzer[RedHigh]->switchOn();
 				buzzer[RedLow]->switchOn();
 				break;
 			case RedLow:
+			    lcd_puts(" : RedLow");
 			    light[RedLow]->switchOn();
 			    buzzer[RedLow]->switchOn();
 			    break;
 			case Yellow:
+			    lcd_puts(" : Yellow");
 			    light[Yellow]->switchOn();
 			    break;
 		   default:
-		           light[Green]->switchOn();		
+		        lcd_puts(" : Green");
+		        light[Green]->switchOn();		
 			
 		}	
+		_delay_ms(PRINTING_DELAY);
+		
 	}
+	
 }
 
 void System::showReadings(){

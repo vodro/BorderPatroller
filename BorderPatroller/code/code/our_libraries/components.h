@@ -236,10 +236,10 @@ class SonarUnit{
 		lcd_clrscr();
 		lcd_gotoxy(0, this->id & 1);
 		//lcd_puts(itoa(counter));
-		lcd_putc(':');
+		lcd_puts("Sonar ");
 		lcd_puts(itoa(id));
-		lcd_puts(">");
-		;
+		lcd_puts(" : ");
+	
 		int distance = container->getLastReading() / 10;
 		lcd_puts(itoa(distance));
 		lcd_puts(" cm");
