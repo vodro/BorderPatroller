@@ -18,12 +18,14 @@
 #include <stdlib.h>
 
 #include "our_libraries/util.h"
+#include "our_libraries/components.h"
+#include "our_libraries/system.h"
 //using namespace  std;
 
 
 // Distance Calculator Boss
 DistanceCalculator distanceCalculator(20); // current temperature 29 degree celcius
-LightUnit redLed1,redLed2,yellowLed,greenLed;
+LightUnit redLed1(PORTLTR1),redLed2(PORTLTR2),yellowLed(PORTLTY),greenLed(PORTLTG);
 BuzzerUnit buzzer0,buzzer1;
 
 
@@ -63,22 +65,13 @@ ISR(INT2_vect){
 
 
 void test(){
-	MotorUnit motorUnit;
-	double motorCounter;
-	
-	while(1){
-		motorUnit.revolveAntiClockWise(1);
-		_delay_ms(500);
-		motorUnit.revolveClockwise(.5);
-		_delay_ms(500);
+	System system;
 		
-		
-	}
-	
 }
 
 int main(void)
 {
+	/*
 	redLed1.setDangerRange(0,RED);
 	redLed1.setPinPosition(PORTLTR1);
 	
@@ -96,7 +89,7 @@ int main(void)
 	
 	buzzer1.setDangerRange(RED+1,YELLOW);
 	buzzer1.setPinPosition(PORTDBZ1);
-	
+	*/
 	
 	TCCR1A=0b00000000;
 	TCCR1B=0b00000001;
@@ -133,7 +126,7 @@ int main(void)
 	//DDRA |= (0b11110000);
 	DDRA = DDRA | (0xF0);
 	
-	//test();
+	test();
 	
 	int sonar0_distance,sonar1_distance,sonar2_distance=0;
     while (1) 
@@ -199,24 +192,15 @@ int main(void)
 		
 		// led & buzzer configuration
 		DDRD|=0b11110011;
-		
 		// LED
-		if(redLed1.isDanger(sonar0_distance)||redLed1.isDanger(sonar1_distance)||redLed1.isDanger(sonar2_distance))
-		{
-			 redLed1.switchOn();
-			 redLed2.switchOn();
-		} else {
-			redLed1.switchOff();
-			redLed2.switchOff();
-		}
+		
+		redLed1.switchOn();
+		redLed2.switchOn();
+		greenLed.switchOn();
+		yellowLed.switchOn();
 		
 		 
 		 
-		if(yellowLed.isDanger(sonar0_distance)||yellowLed.isDanger(sonar1_distance)||yellowLed.isDanger(sonar2_distance))
-		yellowLed.switchOn(); else yellowLed.switchOff();
-		
-		if(greenLed.isDanger(sonar0_distance)||greenLed.isDanger(sonar1_distance)||greenLed.isDanger(sonar2_distance))
-		greenLed.switchOn(); else greenLed.switchOff();
 		
 		// BUZZER 
 		if(buzzer0.isDanger(sonar0_distance)||buzzer0.isDanger(sonar1_distance)||buzzer0.isDanger(sonar2_distance))

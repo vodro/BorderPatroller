@@ -168,10 +168,20 @@
     <Compile Include="main.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="our_libraries\components.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="our_libraries\system.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="our_libraries\util.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="external_libraries\" />
     <Folder Include="external_libraries\lcd\" />
+    <Folder Include="our_libraries\" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
