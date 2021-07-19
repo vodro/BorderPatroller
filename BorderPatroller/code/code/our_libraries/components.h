@@ -157,7 +157,7 @@ class SonarUnit{
 	static int idCount;
 	public:
 	SonarUnit(int saved_readings = CONTAINER_DEFAULT_SIZE){
-		this->id = idCount;
+		this->id = idCount++;
 		container = (Container *)malloc(sizeof(Container));
 		warningStatus = Green;
 	}
@@ -172,6 +172,8 @@ class SonarUnit{
 		}
 		return false;
 	}
+	
+		
 	double distanceBetween(int x, int y){
 		return abs(x-y);
 	}
@@ -191,11 +193,11 @@ class SonarUnit{
 	void pushReading(int distance){
 		container->addElement(distance);
 		if(isMoving()){
-			if(distance <= RedHigh){
+			if(distance <= RedHighLimit){
 				setWarningStatus(RedHigh);
-			}else if(distance <= RedLow){
+			}else if(distance <= RedLowLimit){
 				setWarningStatus(RedLow);
-			}else if(distance <= Yellow){
+			}else if(distance <= YellowLimit){
 				setWarningStatus(Yellow);
 			}else{
 				setWarningStatus(Green);

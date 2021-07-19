@@ -90,8 +90,9 @@ class DistanceCalculator
 		setTemperature(temp);
 
 	}
-
-
+   
+ 
+  
 	double calculateVelocity()
 	{
 
