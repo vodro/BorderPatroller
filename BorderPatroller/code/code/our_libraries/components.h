@@ -148,81 +148,74 @@ void MotorUnit::rotateAntiClockWise(double degree){
 
 
 /*MOVING OBJECT DETECTOR CLASS*/
-#define TOLERANCE 15 // may change later
-#define CONTAINER_DEFAULT_SIZE 20
-class Container{
 
-	int *elements;
-	int capacity;
-	int currentPointer;
-
-	public:
-	Container(int capacity = CONTAINER_DEFAULT_SIZE){
-		this->capacity=capacity;
-		elements = (int *) malloc(sizeof(int) * capacity);
-		currentPointer = -1;
-		for(int i=0; i < capacity; i++) 
-			elements[i] = INFINITY;
-        
-	}
-
-	void addElement(int element){
-
-		currentPointer++;
-		
-		currentPointer %= capacity;
-
-		elements[currentPointer] = element;
-
-	}
-	
-	int getLastReading(int kotoNumber){
-		kotoNumber %= capacity;
-		int nowPointer = currentPointer - kotoNumber;
-		nowPointer += capacity;
-		nowPointer %= capacity;
-		return elements[nowPointer];
-	}
-
-/*
-	bool isMoving(){
-		
-		if(currentPointer==-1) return false;
-
-		for(int i=1;i<=4;i++)
-		if(!isEqual(currentPointer,currentPointer-i)) return false;
-
-		return true;
-
-	}
-
-
-	bool isEqual(int i,int j){
-
-		if(j<0)
-		j=j+capacity;
-
-		return abs(distances[i]-distances[j])<=TOLERANCE;
-	}
-*/
-/*
-	void print(){
-
-		for(int i=0;i<capacity;i++) 
-		printf("%d ",distances[i]);
-	
-	}
-	*/
-
-};
 
 class SonarUnit{
+	int id;
 	Container *container;
 	int warningStatus;
+	static int idCount;
 	public:
 	SonarUnit(int saved_readings = CONTAINER_DEFAULT_SIZE){
+		this->id = idCount;
 		container = (Container *)malloc(sizeof(Container));
 		warningStatus = Green;
+	}
+	
+	bool isMoving(){
+		// NEED TO MAKE FAULT TOLERANT
+		//int previousReading = container->getLastReading(1);
+		//int currentReading = container->getLastReading(0);
+		for(int i = 1; i <= MOVING_READING_COUNT; i++){
+			if(isDifferent(0, i))
+				return true;
+		}
+		return false;
+	}
+	double distanceBetween(int x, int y){
+		return abs(x-y);
+	}
+	
+	bool isDifferent(int i, int j){
+		return distanceBetween(container->getLastReading(i), container->getLastReading((j))) >= TOLERANCE_DISTANCE;
+	}
+	
+	int getWarningStatus(){
+		return warningStatus;
+	}
+	
+	void setWarningStatus(int status){
+		this->warningStatus = status;
+	}
+	
+	void pushReading(int distance){
+		container->addElement(distance);
+		if(isMoving()){
+			if(distance <= RedHigh){
+				setWarningStatus(RedHigh);
+			}else if(distance <= RedLow){
+				setWarningStatus(RedLow);
+			}else if(distance <= Yellow){
+				setWarningStatus(Yellow);
+			}else{
+				setWarningStatus(Green);
+			}
+		}else{
+			setWarningStatus(Green);
+		}
+	}
+	
+	void printCurrentReading(){
+		lcd_clrscr();
+		lcd_gotoxy(0, this->id & 1);
+		//lcd_puts(itoa(counter));
+		lcd_putc(':');
+		lcd_puts(itoa(id));
+		lcd_puts(">");
+		;
+		int distance = container->getLastReading() / 10;
+		lcd_puts(itoa(distance));
+		lcd_puts(" cm");
 	}
 };
 
