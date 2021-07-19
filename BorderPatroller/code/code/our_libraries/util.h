@@ -18,6 +18,8 @@ Here goes our own functions
 // Motor related
 #define MOTOR_PERIOD 2000
 
+#define MOTOR_REVOLUTION_NEEDED .5
+
 #define PORTM PORTA
 #define PORTM0 PORTA4
 #define PORTM1 PORTA5
@@ -45,10 +47,10 @@ Here goes our own functions
 #define CONTAINER_DEFAULT_SIZE 20
 #define MOVING_READING_COUNT 4
 
-#define PRINTING_DELAY 500
+#define PRINTING_DELAY 1000
 
 enum WARNING_STATUS{RedHigh, RedLow, Yellow, Green};
-enum WARNING_DISTANCE_LIMIT{RedHighLimit = 150, RedLowLimit = 500, YellowLimit = 1500, GreenLimit = 10000};
+enum WARNING_DISTANCE_LIMIT{RedHighLimit = 300, RedLowLimit = 600, YellowLimit = 1000, GreenLimit = 10000};
 
 
 
@@ -66,6 +68,10 @@ int unsetBit(int n, int pos){
 	return n & ~(1 << pos);
 }
 
+int min(int x, int y){
+	return x > y ? y : x;
+}
+
 extern  char temp_string[16];
 char *itoa(uint32_t n){
 	//char s[10];
@@ -73,6 +79,7 @@ char *itoa(uint32_t n){
 	itoa(n, temp_string, 10);
 	return temp_string;
 }
+
 
 class DistanceCalculator
 {
@@ -174,6 +181,11 @@ class Container{
 
 };
 
+void vulval(){
+	lcd_clrscr();
+	lcd_puts("FUCK YOU!");
+	_delay_ms(5 * PRINTING_DELAY);
+}
 
 void printLine(int n){
 	

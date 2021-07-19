@@ -125,8 +125,8 @@ int main(void)
 		
 		
 		system.calculateWarnings();	
-		//system.showWarnings();
-		system.showReadings();
+		system.showWarnings();
+		//system.showReadings();
     }
 }
 

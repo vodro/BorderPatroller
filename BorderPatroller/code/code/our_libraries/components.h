@@ -10,6 +10,7 @@ class MotorUnit{
 		
 		bool isUp;
 		
+		double revolutionNeeded;
 	public:
 		MotorUnit(){
 			init();
@@ -21,6 +22,7 @@ class MotorUnit{
 			this->fullRotationStep = 32;
 			
 			isUp = false;
+			revolutionNeeded = 0;
 		}
 		
 		void revolveClockwise(double n){
@@ -35,8 +37,33 @@ class MotorUnit{
 			return isUp;
 		}
 		
-		void setStatus(bool isUp){
-			this->isUp = isUp;
+		void setStatus(){
+			this->isUp = true;
+		}
+		
+		void unsetStatus(){
+			this->isUp = false;
+		}
+		
+		void setRevolutionNeeded(double n){
+			this->revolutionNeeded = n;
+		}
+		bool load(){
+			if(isActive() == false){
+				revolveAntiClockWise(revolutionNeeded);
+				setStatus();
+				return true;
+			}
+			return false;
+		}
+		
+		bool unLoad(){
+			if(isActive() == true){
+				revolveClockwise(revolutionNeeded);
+				unsetStatus();
+				return true;
+			}
+			return false;
 		}
 		
 };
@@ -50,27 +77,12 @@ void MotorUnit::unsetPins(){
 
 void MotorUnit:: rotateClockWise(double degree){
 	int step = ceil( degree * gearRatio * fullRotationStep / 360.0 );
-	lcd_gotoxy(0, 0);
-	lcd_puts("degree : ");
-	lcd_puts(itoa(degree));
-	lcd_gotoxy(0, 1);
-	lcd_puts("step : ");
-	lcd_puts(itoa(step));
 	if(!step)
 		return;
 	unsetPins();
 	int now = 2;
 	while(step--){
-		/*
-			lcd_clrscr();
-			lcd_gotoxy(0, 0);
-			lcd_puts("jolbe : " );
-			lcd_puts(itoa(now));
-			lcd_gotoxy(0, 1);
-			lcd_puts("stp r : ");
-			lcd_puts(itoa(step));
-			//_delay_ms(1000);
-			*/
+		
 		switch(now){
 			case 0:
 				PORTM = unsetBit(PORTM, PORTM0);
@@ -107,27 +119,13 @@ void MotorUnit:: rotateClockWise(double degree){
 		
 void MotorUnit::rotateAntiClockWise(double degree){
 	int step = ceil( degree * gearRatio * fullRotationStep / 360.0 );
-	lcd_gotoxy(0, 0);
-	lcd_puts("degree : ");
-	lcd_puts(itoa((int)degree));
-	lcd_gotoxy(0, 1);
-	lcd_puts("step : ");
-	lcd_puts(itoa(step));
+	
 	if(!step)
 		return;
 	unsetPins();
 	int now = 2; // M0 on first
 	while(step--){
-		/*
-			lcd_clrscr();
-			lcd_gotoxy(0, 0);
-			lcd_puts("jolbe : " );
-			lcd_puts(itoa(now));
-			lcd_gotoxy(0, 1);
-			lcd_puts("stp r : ");
-			lcd_puts(itoa(step));
-			//_delay_ms(1000);
-			*/
+		
 		switch(now){
 			case 0:
 				PORTM = unsetBit(PORTM, PORTM0);
@@ -220,8 +218,10 @@ class SonarUnit{
 				setWarningStatus(RedLow);
 			}else if(distance <= YellowLimit){
 				setWarningStatus(Yellow);
-			}else{
+			}else if(distance <= GreenLimit){
 				setWarningStatus(Green);
+			}else{
+				vulval();
 			}
 		}else{
 			setWarningStatus(Green);

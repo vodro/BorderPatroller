@@ -20,6 +20,7 @@ class System{
 	SonarUnit **sonar;
 	int sonarIDCount;
 	
+	int warning_status;
 	
 	public:
 	System();
@@ -41,12 +42,15 @@ class System{
 
 System::System(){
 	sonarIDCount = 0;
+	warning_status = Green;
 	distanceCalculator = (DistanceCalculator *)malloc(sizeof(DistanceCalculator));
 	distanceCalculator->init();
 	//distanceCalculator->setTemperature() // not implemented // default temp = 28
 	
 	motor = (MotorUnit *) malloc(sizeof(MotorUnit));
 	motor->init();
+	motor->setRevolutionNeeded(MOTOR_REVOLUTION_NEEDED);
+	
 	light = (LightUnit **)malloc(4 * sizeof(LightUnit *));
 	for(int i = 0; i < 4; i++){
 		light[i] = (LightUnit *) malloc(sizeof(LightUnit));
@@ -113,37 +117,35 @@ void System:: resetLightsBuzzers(){
 }
 void System::calculateWarnings(){
 	
-  resetLightsBuzzers();
-	
+	//resetLightsBuzzers();
+	warning_status = Green;
 	for(int i=0; i<3;i++){
-		  
+		if(i > 1)
+		{
+	lcd_clrscr();
+		}
+		  this->warning_status = min(this->warning_status, sonar[i]->getWarningStatus() );
 		  lcd_gotoxy(0,i&1);
-		  lcd_puts("Sonar ");
-		  lcd_puts(itoa(i));
+		lcd_puts(itoa(i));
+		lcd_puts("> ");
+		lcd_puts(itoa(sonar[i]->getLastReading()/10));
+		lcd_puts(" cm");
 		switch(sonar[i]->getWarningStatus()){
 			 
 			  
 			case RedHigh:
-			    lcd_puts(" : RedHigh");
-				light[RedHigh]->switchOn();
-				light[RedLow]->switchOn();
-				buzzer[RedHigh]->switchOn();
-				buzzer[RedLow]->switchOn();
+			    lcd_puts(" : RDHg");
 				break;
 			case RedLow:
-			    lcd_puts(" : RedLow");
-			    light[RedLow]->switchOn();
-			    buzzer[RedLow]->switchOn();
+			    lcd_puts(" : RDLw");
 			    break;
 			case Yellow:
-			    lcd_puts(" : Yellow");
-			    light[Yellow]->switchOn();
+			    lcd_puts(" : YE");
 			    break;
 		   default:
-		        lcd_puts(" : Green");
-		        light[Green]->switchOn();		
-			
+		        lcd_puts(" : GRN");
 		}	
+		lcd_puts("   ");
 		_delay_ms(PRINTING_DELAY);
 		
 	}
@@ -159,7 +161,33 @@ void System::showReadings(){
 	
 }
 
-
+void System::showWarnings(){
+	resetLightsBuzzers();
+	switch(this->warning_status){
+		case RedHigh:
+			light[RedHigh]->switchOn();
+			light[RedLow]->switchOn();
+			buzzer[RedHigh]->switchOn();
+			buzzer[RedLow]->switchOn();
+			motor->load();
+			break;
+		case RedLow:
+			light[RedLow]->switchOn();
+			buzzer[RedLow]->switchOn();
+			motor->unLoad();
+			break;
+		case Yellow:
+			light[Yellow]->switchOn();
+			motor->unLoad();
+			break;
+		case Green:
+			light[Green]->switchOn();
+			motor->unLoad();
+			break;
+		default:
+			vulval();
+	}
+}
 
 
 #endif /* SYSTEM_H_ */
