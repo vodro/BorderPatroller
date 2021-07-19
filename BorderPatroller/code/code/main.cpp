@@ -40,20 +40,8 @@ ISR(TIMER1_OVF_vect){
 }
 
 ISR(INT0_vect){
-	timer0_elapsed_time=(uint32_t)TCNT1 + (timer_count << 16);
-	/*
-	lcd_gotoxy(0,0);
-	lcd_puts(itoa(timer_elapsed_time));
-	lcd_puts(" us INT0!");
-	lcd_gotoxy(0, 1);
-	
-	lcd_puts(itoa(distanceCalculator.calculateDistance(timer_elapsed_time) / 10));
-	lcd_puts(" cm");
-	_delay_ms(1000);
-	lcd_clrscr();
-	*/
+	timer0_elapsed_time=(uint32_t)TCNT1 + (timer_count << 16);	
 }
-
 
 ISR(INT1_vect){
 	timer1_elapsed_time=(uint32_t)TCNT1 + (timer_count << 16);	
@@ -128,12 +116,12 @@ int main(void)
 		
 		cli();
 		
-		/*
-		system->updateReadings();
-		system->calculateWarnings();
-		system->showWarnings();
-		system->showReadings;
-		*/
+		
+		system.updateReadings(timer0_elapsed_time,timer1_elapsed_time,timer2_elapsed_time);
+		system.calculateWarnings();	
+		//system.showWarnings();
+		system.showReadings();
+		
 		
 		
     }
