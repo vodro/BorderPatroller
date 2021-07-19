@@ -22,6 +22,8 @@
 #include "our_libraries/system.h"
 //using namespace  std;
 
+
+DistanceCalculator distanceCalculator(20); // current temperature 29 degree celcius
 /*
 // Distance Calculator Boss
 DistanceCalculator distanceCalculator(20); // current temperature 29 degree celcius
@@ -117,13 +119,14 @@ int main(void)
 		cli();
 		
 		
+		
+		
 		system.updateReadings(timer0_elapsed_time,timer1_elapsed_time,timer2_elapsed_time);
+		
+		
 		system.calculateWarnings();	
 		//system.showWarnings();
 		system.showReadings();
-		
-		
-		
     }
 }
 

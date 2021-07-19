@@ -45,6 +45,8 @@ Here goes our own functions
 #define CONTAINER_DEFAULT_SIZE 20
 #define MOVING_READING_COUNT 4
 
+#define PRINTING_DELAY 500
+
 enum WARNING_STATUS{RedHigh, RedLow, Yellow, Green};
 enum WARNING_DISTANCE_LIMIT{RedHighLimit = 150, RedLowLimit = 500, YellowLimit = 1500, GreenLimit = 10000};
 
@@ -85,12 +87,14 @@ class DistanceCalculator
 	public:
 	DistanceCalculator(float temp = 28)
 	{
-		maximumAllowedDistance = 4000 + 500; // .5m extra for extra :p
-		temperature=temp;
-		setTemperature(temp);
-
+		init(temp);
 	}
    
+   void init(float temp = 28){
+	   maximumAllowedDistance = 4000 + 500; // .5m extra for extra :p
+	   temperature=temp;
+	   setTemperature(temp);
+   }
  
   
 	double calculateVelocity()
@@ -138,12 +142,16 @@ class Container{
 
 	public:
 	Container(int capacity = CONTAINER_DEFAULT_SIZE){
+		init();
+		
+	}
+	
+	void init(int capacity = CONTAINER_DEFAULT_SIZE){
 		this->capacity=capacity;
 		elements = (int *) malloc(sizeof(int) * capacity);
 		currentPointer = -1;
 		for(int i=0; i < capacity; i++)
 		elements[i] = (int)INFINITY;
-		
 	}
 
 	void addElement(int element){
@@ -166,6 +174,12 @@ class Container{
 
 };
 
+
+void printLine(int n){
+	
+	lcd_puts(itoa(n));
+	_delay_ms(PRINTING_DELAY);
+}
 
 
 

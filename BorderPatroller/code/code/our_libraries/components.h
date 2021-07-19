@@ -7,13 +7,21 @@ class MotorUnit{
 		void unsetPins();
 		void rotateAntiClockWise(double degree);
 		void rotateClockWise(double degree);
+		
+		bool isUp;
+		
 	public:
 		MotorUnit(){
+			init();
+		}
+		
+		void init(){
 			this->gearRatio = 64;
 			//this->gearRatio = 63.68395;
 			this->fullRotationStep = 32;
+			
+			isUp = false;
 		}
-		
 		
 		void revolveClockwise(double n){
 			rotateClockWise(n * 360.0);
@@ -21,6 +29,14 @@ class MotorUnit{
 		
 		void revolveAntiClockWise(double n){
 			rotateAntiClockWise(n * 360.0);
+		}
+		
+		bool isActive(){
+			return isUp;
+		}
+		
+		void setStatus(bool isUp){
+			this->isUp = isUp;
 		}
 		
 };
@@ -156,15 +172,14 @@ class SonarUnit{
 	int warningStatus;
 	
 	public:
-	static int idCount;
-	SonarUnit(int saved_readings = CONTAINER_DEFAULT_SIZE){
-		init(saved_readings);
+	SonarUnit(int id, int saved_readings = CONTAINER_DEFAULT_SIZE){
+		init(id, saved_readings);
 	}
 	
-	void init(int saved_readings = CONTAINER_DEFAULT_SIZE ){
-		this->id = idCount;
-		idCount++;
+	void init(int id, int saved_readings = CONTAINER_DEFAULT_SIZE ){
+		this->id = id;
 		container = (Container *)malloc(sizeof(Container));
+		container->init();
 		warningStatus = Green;
 	}
 	
@@ -213,6 +228,10 @@ class SonarUnit{
 		}
 	}
 	
+	int getLastReading(){
+		return container->getLastReading();
+	}
+	
 	void printCurrentReading(){
 		lcd_clrscr();
 		lcd_gotoxy(0, this->id & 1);
@@ -224,6 +243,7 @@ class SonarUnit{
 		int distance = container->getLastReading() / 10;
 		lcd_puts(itoa(distance));
 		lcd_puts(" cm");
+		_delay_ms(PRINTING_DELAY);
 	}
 };
 
@@ -231,6 +251,10 @@ class LightUnit{
 	int pinPosition;
 	public:
 	LightUnit(int pinPosition){
+		init(pinPosition);
+	}
+	
+	void init(int pinPosition = -1){
 		this->pinPosition = pinPosition;
 	}
 	void setPinPosition(int pos){
@@ -255,6 +279,9 @@ class BuzzerUnit{
 	int pinPosition;
 	public:
 	BuzzerUnit(int pinPosition){
+		init(pinPosition);
+	}
+	void init(int pinPosition = -1){
 		this->pinPosition = pinPosition;
 	}
 	void setPinPosition(int pos){
