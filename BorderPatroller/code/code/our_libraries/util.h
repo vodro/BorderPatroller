@@ -37,13 +37,17 @@ Here goes our own functions
 
 //FOR BUZZER
 #define PORTBZ PORTD
-#define PORTDBZ0 PORTD0
-#define PORTDBZ1 PORTD1
+#define PORTBZ0 PORTD0
+#define PORTBZ1 PORTD1
 
+#define TOLERANCE_DISTANCE 50 // may change later
 
+#define CONTAINER_DEFAULT_SIZE 20
+#define MOVING_READING_COUNT 4
 
 enum WARNING_STATUS{RedHigh, RedLow, Yellow, Green};
-//enum WARNING_DISTANCE{150, 500, 1500, 10000};
+enum WARNING_DISTANCE_LIMIT{RedHighLimit = 150, RedLowLimit = 500, YellowLimit = 1500, GreenLimit = 10000};
+
 
 
 /**
@@ -79,7 +83,7 @@ class DistanceCalculator
 	uint32_t maximumAllowedDistance;
 	uint32_t maximumAllowedTime; 
 	public:
-	DistanceCalculator(float temp)
+	DistanceCalculator(float temp = 28)
 	{
 		maximumAllowedDistance = 4000 + 500; // .5m extra for extra :p
 		temperature=temp;
@@ -124,6 +128,42 @@ class DistanceCalculator
 
 };
 
+
+class Container{
+
+	int *elements;
+	int capacity;
+	int currentPointer;
+
+	public:
+	Container(int capacity = CONTAINER_DEFAULT_SIZE){
+		this->capacity=capacity;
+		elements = (int *) malloc(sizeof(int) * capacity);
+		currentPointer = -1;
+		for(int i=0; i < capacity; i++)
+		elements[i] = (int)INFINITY;
+		
+	}
+
+	void addElement(int element){
+
+		currentPointer++;
+		
+		currentPointer %= capacity;
+
+		elements[currentPointer] = element;
+
+	}
+	
+	int getLastReading(int kotoNumber = 0){
+		kotoNumber %= capacity;
+		int nowPointer = currentPointer - kotoNumber;
+		nowPointer += capacity;
+		nowPointer %= capacity;
+		return elements[nowPointer];
+	}
+
+};
 
 
 
