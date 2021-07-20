@@ -37,6 +37,7 @@ class System{
 	
 	void showReadings();
 	
+	
 	void  resetLightsBuzzers();
 };
 
@@ -120,43 +121,41 @@ void System::calculateWarnings(){
 	//resetLightsBuzzers();
 	warning_status = Green;
 	for(int i=0; i<3;i++){
-		if(i > 1)
-		{
-	lcd_clrscr();
-		}
 		  this->warning_status = min(this->warning_status, sonar[i]->getWarningStatus() );
-		  lcd_gotoxy(0,i&1);
-		lcd_puts(itoa(i));
-		lcd_puts("> ");
-		lcd_puts(itoa(sonar[i]->getLastReading()/10));
-		lcd_puts(" cm");
-		switch(sonar[i]->getWarningStatus()){
-			 
-			  
-			case RedHigh:
-			    lcd_puts(" : RDHg");
-				break;
-			case RedLow:
-			    lcd_puts(" : RDLw");
-			    break;
-			case Yellow:
-			    lcd_puts(" : YE");
-			    break;
-		   default:
-		        lcd_puts(" : GRN");
-		}	
-		lcd_puts("   ");
-		_delay_ms(PRINTING_DELAY);
-		
 	}
 	
 }
 
 void System::showReadings(){
-	
-	for (int i=0;i<3;i++)
-	{
-		sonar[i]->printCurrentReading();
+	for(int i=0; i<3;i++){
+		
+		if(i > 1)
+		{
+			lcd_clrscr();
+		}
+		lcd_gotoxy(0,i&1);
+		lcd_puts(itoa(i));
+		lcd_puts("> ");
+		lcd_puts(itoa(sonar[i]->getLastReading()/10));
+		lcd_puts(" cm");
+		switch(sonar[i]->getWarningStatus()){
+			
+			
+			case RedHigh:
+			lcd_puts(" : RDHg");
+			break;
+			case RedLow:
+			lcd_puts(" : RDLw");
+			break;
+			case Yellow:
+			lcd_puts(" : YE");
+			break;
+			default:
+			lcd_puts(" : GRN");
+		}
+		lcd_puts("   ");
+		_delay_ms(PRINTING_DELAY);
+		
 	}
 	
 }

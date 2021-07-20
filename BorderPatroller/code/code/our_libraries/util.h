@@ -18,7 +18,7 @@ Here goes our own functions
 // Motor related
 #define MOTOR_PERIOD 2000
 
-#define MOTOR_REVOLUTION_NEEDED .5
+#define MOTOR_REVOLUTION_NEEDED .8
 
 #define PORTM PORTA
 #define PORTM0 PORTA4

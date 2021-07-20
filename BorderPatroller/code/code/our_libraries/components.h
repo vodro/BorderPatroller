@@ -50,7 +50,7 @@ class MotorUnit{
 		}
 		bool load(){
 			if(isActive() == false){
-				revolveAntiClockWise(revolutionNeeded);
+				revolveClockwise(revolutionNeeded);
 				setStatus();
 				return true;
 			}
@@ -59,7 +59,7 @@ class MotorUnit{
 		
 		bool unLoad(){
 			if(isActive() == true){
-				revolveClockwise(revolutionNeeded);
+				revolveAntiClockWise(revolutionNeeded);
 				unsetStatus();
 				return true;
 			}

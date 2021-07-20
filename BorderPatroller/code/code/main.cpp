@@ -56,7 +56,14 @@ ISR(INT2_vect){
 
 void test(){
 	//SonarUnit::idCount = 0;
-	System system;
+	MotorUnit motorUnit;
+	motorUnit.setRevolutionNeeded(1);
+	while(1){
+	motorUnit.load();
+	_delay_ms(PRINTING_DELAY);
+	motorUnit.unLoad();
+	_delay_ms(PRINTING_DELAY);
+	}
 		
 }
 
@@ -126,7 +133,7 @@ int main(void)
 		
 		system.calculateWarnings();	
 		system.showWarnings();
-		//system.showReadings();
+		system.showReadings();
     }
 }
 
